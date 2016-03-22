@@ -14,7 +14,7 @@ module ActiveRecord
       end
 
       def column_spec_for_primary_key(column)
-        return if column.type == :integer
+        return {} if default_primary_key?(column)
         spec = { id: schema_type(column).inspect }
         spec.merge!(prepare_column_options(column))
       end
@@ -56,12 +56,20 @@ module ActiveRecord
 
       private
 
+      def default_primary_key?(column)
+        schema_type(column) == :integer
+      end
+
       def schema_type(column)
-        column.type
+        if column.bigint?
+          :bigint
+        else
+          column.type
+        end
       end
 
       def schema_limit(column)
-        limit = column.limit
+        limit = column.limit unless column.bigint?
         limit.inspect if limit && limit != native_database_types[column.type][:limit]
       end
 

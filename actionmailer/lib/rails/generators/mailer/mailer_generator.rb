@@ -9,13 +9,19 @@ module Rails
 
       def create_mailer_file
         template "mailer.rb", File.join('app/mailers', class_path, "#{file_name}_mailer.rb")
+
+        in_root do
+          if self.behavior == :invoke && !File.exist?('app/mailers/application_mailer.rb')
+            template 'application_mailer.rb', 'app/mailers/application_mailer.rb'
+          end
+        end
       end
 
       hook_for :template_engine, :test_framework
 
       protected
         def file_name
-          @_file_name ||= super.gsub(/\_mailer/i, '')
+          @_file_name ||= super.gsub(/_mailer/i, '')
         end
     end
   end

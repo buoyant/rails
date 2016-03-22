@@ -1,3 +1,25 @@
+*   When a `respond_to` collector with a block doesn't have a response, then
+    a `:no_content` response should be rendered.  This brings the default
+    rendering behavior introduced by https://github.com/rails/rails/issues/19036
+    to controller methods employing `respond_to`
+
+    *Justin Coyne*
+
+*   Add `ActionController::Parameters#dig` on Ruby 2.3 and greater, which
+    behaves the same as `Hash#dig`.
+
+    *Sean Griffin*
+
+*   Add request headers in the payload of the `start_processing.action_controller`
+    and `process_action.action_controller` notifications.
+
+    *Gareth du Plooy*
+
+*   Add `action_dispatch_integration_test` load hook. The hook can be used to
+    extend `ActionDispatch::IntegrationTest` once it has been loaded.
+
+    *Yuichiro Kaneko*
+
 *   Update default rendering policies when the controller action did
     not explicitly indicate a response.
 

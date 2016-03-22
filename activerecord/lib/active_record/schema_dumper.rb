@@ -104,10 +104,7 @@ HEADER
       end
 
       def table(table, stream)
-        columns = @connection.columns(table).map do |column|
-          column.instance_variable_set(:@table_name, table)
-          column
-        end
+        columns = @connection.columns(table)
         begin
           tbl = StringIO.new
 
@@ -126,7 +123,7 @@ HEADER
             tbl.print ", primary_key: #{pk.inspect}" unless pk == 'id'
             pkcol = columns.detect { |c| c.name == pk }
             pkcolspec = @connection.column_spec_for_primary_key(pkcol)
-            if pkcolspec
+            if pkcolspec.present?
               pkcolspec.each do |key, value|
                 tbl.print ", #{key}: #{value}"
               end

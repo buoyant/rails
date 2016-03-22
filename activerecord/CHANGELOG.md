@@ -1,3 +1,9 @@
+*   Execute default_scope defined by abstract class in the context of subclass.
+
+    Fixes #23413 & #10658
+
+    *Mehmet Emin İNAÇ*
+
 *   Fix an issue when preloading associations with extensions.
     Previously every association with extension methods was transformed into an
     instance dependent scope. This is no longer the case.
@@ -40,6 +46,12 @@
     *Eileen M. Uchitelle*
 
 ## Rails 5.0.0.beta3 (February 24, 2016) ##
+
+*   Save many-to-many objects based on association primary key.
+
+    Fixes #20995.
+
+    *himesh-r*
 
 *   Ensure that mutations of the array returned from `ActiveRecord::Relation#to_a`
     do not affect the original relation, by returning a duplicate array each time.
@@ -221,6 +233,21 @@
     *Ben Woosley*
 
 ## Rails 5.0.0.beta1 (December 18, 2015) ##
+
+*   Limit record touching to once per transaction.
+
+    If you have a parent/grand-parent relation like:
+
+        Comment belongs_to :message, touch: true
+        Message belongs_to :project, touch: true
+        Project belongs_to :account, touch: true
+
+    When the lowest entry(`Comment`) is saved, now, it won't repeat the touch
+    call multiple times for the parent records.
+
+    Related #18606.
+
+    *arthurnn*
 
 *   Order the result of `find(ids)` to match the passed array, if the relation
     has no explicit order defined.
