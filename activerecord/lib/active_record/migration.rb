@@ -1208,9 +1208,6 @@ module ActiveRecord
     end
 
     def execute_migration_in_transaction(migration, direction)
-      return if down? && !migrated.include?(migration.version.to_i)
-      return if up?   &&  migrated.include?(migration.version.to_i)
-
       Base.logger.info "Migrating to #{migration.name} (#{migration.version})" if Base.logger
 
       ddl_transaction(migration) do
@@ -1218,10 +1215,27 @@ module ActiveRecord
         record_version_state_after_migrating(migration.version)
       end
     rescue => e
-      msg = "An error has occurred, "
-      msg << "this and " if use_transaction?(migration)
-      msg << "all later migrations canceled:\n\n#{e}"
-      raise StandardError, msg, e.backtrace
+      msg = "#{e}"
+      msg << "\n\nAn error has occurred,\n"
+      msg << 'Seems like this migration has already been run or '
+      msg << 'you have edited the migration file which is already run. '
+      msg << 'you can skip this migration if already run and continue with next migration or you can abort the migrations here. '
+      msg << "\npress `s` to skip or `a` to abort:"
+      puts msg
+      puts ">"
+      while user_input = $stdin.gets.strip
+        case user_input
+        when "s"
+          record_version_state_after_migrating(migration.version)
+          break
+        when "a"
+          puts "Bye"
+          exit
+        else
+          puts "please enter a valid input."
+          print ">"
+        end
+      end
     end
 
     def target
@@ -1248,7 +1262,7 @@ module ActiveRecord
       if down?
         migrated.delete(version)
         ActiveRecord::SchemaMigration.where(:version => version.to_s).delete_all
-      else
+      elsif !migrated.include?(version.to_i)
         migrated << version
         ActiveRecord::SchemaMigration.create!(version: version.to_s)
       end
